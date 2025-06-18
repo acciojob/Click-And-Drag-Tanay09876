@@ -35,7 +35,52 @@
   </div>
 
 <script>
-//Your code goes here 
+const container = document.querySelector('.items');
+const items = document.querySelectorAll('.item');
+
+let selected = null;
+let offsetX = 0;
+let offsetY = 0;
+let containerRect = container.getBoundingClientRect();
+
+
+items.forEach((item, i) => {
+  const left = i * 220; 
+  item.style.position = 'absolute';
+  item.style.left = `${left}px`;
+  item.style.top = `0px`;
+  item.dataset.left = left;
+  item.dataset.top = 0;
+
+  item.addEventListener('mousedown', (e) => {
+    selected = item;
+    offsetX = e.clientX - item.offsetLeft;
+    offsetY = e.clientY - item.offsetTop;
+    containerRect = container.getBoundingClientRect();
+  });
+});
+
+document.addEventListener('mousemove', (e) => {
+  if (!selected) return;
+
+  let x = e.clientX - offsetX;
+  let y = e.clientY - offsetY;
+
+  // Constraint logic
+  const maxX = container.clientWidth - selected.offsetWidth;
+  const maxY = container.clientHeight - selected.offsetHeight;
+
+  x = Math.max(0, Math.min(x, maxX));
+  y = Math.max(0, Math.min(y, maxY));
+
+  selected.style.left = `${x}px`;
+  selected.style.top = `${y}px`;
+});
+
+document.addEventListener('mouseup', () => {
+  selected = null;
+});
+
 </script>
 
   </body>
