@@ -1,47 +1,27 @@
-// Your code here.
-const container = document.getElementById('container');
-const cubes = document.querySelectorAll('.cube');
+const slider = document.querySelector('.items');
+let isDown = false;
+let startX;
+let scrollLeft;
 
-let offsetX, offsetY, isDragging = false, activeCube = null;
-
-
-const gridSize = 100 + 4; 
-cubes.forEach((cube, i) => {
-  const row = Math.floor(i / 5);
-  const col = i % 5;
-  cube.style.left = `${col * gridSize}px`;
-  cube.style.top = `${row * gridSize}px`;
+slider.addEventListener('mousedown', (e) => {
+  isDown = true;
+  slider.classList.add('active');
+  startX = e.pageX - slider.offsetLeft;
+  scrollLeft = slider.scrollLeft;
 });
 
-// Drag logic
-cubes.forEach(cube => {
-  cube.addEventListener('mousedown', (e) => {
-    isDragging = true;
-    activeCube = cube;
-    offsetX = e.offsetX;
-    offsetY = e.offsetY;
-    cube.style.zIndex = 1000; 
-  });
+slider.addEventListener('mouseleave', () => {
+  isDown = false;
 });
 
-document.addEventListener('mousemove', (e) => {
-  if (!isDragging || !activeCube) return;
-
-  const containerRect = container.getBoundingClientRect();
-
-  let x = e.clientX - containerRect.left - offsetX;
-  let y = e.clientY - containerRect.top - offsetY;
-
-  // Boundaries
-  x = Math.max(0, Math.min(container.clientWidth - activeCube.offsetWidth, x));
-  y = Math.max(0, Math.min(container.clientHeight - activeCube.offsetHeight, y));
-
-  activeCube.style.left = `${x}px`;
-  activeCube.style.top = `${y}px`;
+slider.addEventListener('mouseup', () => {
+  isDown = false;
 });
 
-document.addEventListener('mouseup', () => {
-  if (activeCube) activeCube.style.zIndex = 1;
-  isDragging = false;
-  activeCube = null;
+slider.addEventListener('mousemove', (e) => {
+  if (!isDown) return;
+  e.preventDefault();
+  const x = e.pageX - slider.offsetLeft;
+  const walk = (x - startX) * 2; 
+  slider.scrollLeft = scrollLeft - walk;
 });
