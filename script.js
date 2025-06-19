@@ -1,57 +1,32 @@
-const container = document.getElementById('container');
-const cubes = document.querySelectorAll('.cube');
+window.addEventListener('DOMContentLoaded', () => {
+  const container = document.querySelector('.items');
+  let isDown = false;
+  let startX;
+  let scrollLeft;
 
-const containerRect = container.getBoundingClientRect();
-const cubeSize = 80; 
-const padding = 20;
-const gap = 20;
+  container.addEventListener('mousedown', (e) => {
+    isDown = true;
+    container.classList.add('active');
+    container.style.cursor = 'grabbing';
+    startX = e.pageX - container.offsetLeft;
+    scrollLeft = container.scrollLeft;
+  });
 
-// Arrange cubes in grid positions
-cubes.forEach((cube, index) => {
-  const cols = 4;
-  const row = Math.floor(index / cols);
-  const col = index % cols;
-  const left = padding + col * (cubeSize + gap);
-  const top = padding + row * (cubeSize + gap);
+  container.addEventListener('mouseleave', () => {
+    isDown = false;
+    container.style.cursor = 'grab';
+  });
 
-  cube.style.left = `${left}px`;
-  cube.style.top = `${top}px`;
-});
+  container.addEventListener('mouseup', () => {
+    isDown = false;
+    container.style.cursor = 'grab';
+  });
 
-let selectedCube = null;
-let offsetX, offsetY;
-
-cubes.forEach(cube => {
-  cube.addEventListener('mousedown', (e) => {
-    selectedCube = cube;
-    const rect = cube.getBoundingClientRect();
-    offsetX = e.clientX - rect.left;
-    offsetY = e.clientY - rect.top;
-
-    document.addEventListener('mousemove', onMouseMove);
-    document.addEventListener('mouseup', onMouseUp);
+  container.addEventListener('mousemove', (e) => {
+    if (!isDown) return;
+    e.preventDefault();
+    const x = e.pageX - container.offsetLeft;
+    const walk = (x - startX) * 2; // Scroll speed factor
+    container.scrollLeft = scrollLeft - walk;
   });
 });
-
-function onMouseMove(e) {
-  if (!selectedCube) return;
-
-  const x = e.clientX - containerRect.left - offsetX;
-  const y = e.clientY - containerRect.top - offsetY;
-
-  const maxX = container.clientWidth - cubeSize;
-  const maxY = container.clientHeight - cubeSize;
-
-  const boundedX = Math.min(Math.max(0, x), maxX);
-  const boundedY = Math.min(Math.max(0, y), maxY);
-
-  selectedCube.style.left = `${boundedX}px`;
-  selectedCube.style.top = `${boundedY}px`;
-}
-
-function onMouseUp() {
-  if (!selectedCube) return;
-  document.removeEventListener('mousemove', onMouseMove);
-  document.removeEventListener('mouseup', onMouseUp);
-  selectedCube = null;
-}
